@@ -93,11 +93,6 @@ stages:
       - job: InitJob
         displayName: "Init Job"
         steps:
-          # Install Terraform
-          - task: TerraformInstaller@1
-            inputs:
-              terraformVersion: '1.6.6'
-
           # Terraform Init
           - task: TerraformTaskV4@4
             inputs:
