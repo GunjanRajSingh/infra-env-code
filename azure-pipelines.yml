@@ -1,3 +1,79 @@
+# parameters:
+#   - name: todo-parameters
+#     displayName: ENVIROMENT
+#     type: string
+#     default: dev
+#     values:
+#       - dev
+#       - prod
+
+# pool: test-pool
+# trigger: none
+# stages:
+#     - stage: terraforminit
+#       displayName: TERRAFORM INIT       
+      
+#       jobs:
+#         - job: InitJob
+#           displayName: "Init Job"
+#           steps:
+#             - task: TerraformTask@5
+#               inputs:
+#                 provider: 'azurerm'
+#                 command: 'init'
+#                 workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
+#                 backendServiceArm: 'todo-svc-test'
+#                 backendAzureRmStorageAccountName: 'azurepipeline123'
+#                 backendAzureRmContainerName: 'azure'
+#                 backendAzureRmKey: 'dev.terraform.tfstate'
+
+        
+#       #  - template: terraform-init.yml@test
+
+#     - stage: terraformplan
+#       displayName: TERRAFORM PLAN
+#       jobs:
+#       - job: terraformplan
+#         steps:
+#           - task: TerraformTask@5
+#             inputs:
+#               provider: 'azurerm'
+#               command: 'init'
+#               workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
+#               backendServiceArm: 'todo-svc-test'
+#               backendAzureRmStorageAccountName: 'azurepipeline123'
+#               backendAzureRmContainerName: 'azure'
+#               backendAzureRmKey: 'dev.terraform.tfstate'
+#           - task: TerraformTask@5
+#             inputs:
+#               provider: 'azurerm'
+#               command: 'plan'
+#               workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev/'
+#               environmentServiceNameAzureRM: 'todo-svc-test'
+#         # - template: templates/terraform-init.yml
+#         # - template: templates/terraform-plan.yml
+#     - stage: terraformapply
+#       displayName: TERRAFORM APPLY
+#       dependsOn: terraformplan
+#       jobs:
+#         - job: terraformapply
+#           steps:
+#            - task: TerraformTask@5
+#              inputs:
+#                 provider: 'azurerm'
+#                 command: 'init'
+#                 workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
+#                 backendServiceArm: 'todo-svc-test'
+#                 backendAzureRmStorageAccountName: 'azurepipeline123'
+#                 backendAzureRmContainerName: 'azure'
+#                 backendAzureRmKey: 'dev.terraform.tfstate'
+#            - task: TerraformTask@5
+#              inputs:
+#                provider: 'azurerm'
+#                command: 'apply'
+#                workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
+#                environmentServiceNameAzureRM: 'todo-svc-test'
+
 parameters:
   - name: todo-parameters
     displayName: ENVIROMENT
@@ -9,10 +85,10 @@ parameters:
 
 pool: test-pool
 trigger: none
+
 stages:
     - stage: terraforminit
       displayName: TERRAFORM INIT       
-      
       jobs:
         - job: InitJob
           displayName: "Init Job"
@@ -21,14 +97,11 @@ stages:
               inputs:
                 provider: 'azurerm'
                 command: 'init'
-                workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.todo-parameters)'
                 backendServiceArm: 'todo-svc-test'
                 backendAzureRmStorageAccountName: 'azurepipeline123'
                 backendAzureRmContainerName: 'azure'
-                backendAzureRmKey: 'dev.terraform.tfstate'
-
-        
-      #  - template: terraform-init.yml@test
+                backendAzureRmKey: $'(parameters.todo-parameters).terraform.tfstate'
 
     - stage: terraformplan
       displayName: TERRAFORM PLAN
@@ -39,19 +112,18 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'init'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.todo-parameters)'
               backendServiceArm: 'todo-svc-test'
               backendAzureRmStorageAccountName: 'azurepipeline123'
               backendAzureRmContainerName: 'azure'
-              backendAzureRmKey: 'dev.terraform.tfstate'
+              backendAzureRmKey: '$(parameters.todo-parameters).terraform.tfstate'
           - task: TerraformTask@5
             inputs:
               provider: 'azurerm'
               command: 'plan'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev/'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.todo-parameters)'
               environmentServiceNameAzureRM: 'todo-svc-test'
-        # - template: templates/terraform-init.yml
-        # - template: templates/terraform-plan.yml
+
     - stage: terraformapply
       displayName: TERRAFORM APPLY
       dependsOn: terraformplan
@@ -62,14 +134,14 @@ stages:
              inputs:
                 provider: 'azurerm'
                 command: 'init'
-                workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.todo-parameters)'
                 backendServiceArm: 'todo-svc-test'
                 backendAzureRmStorageAccountName: 'azurepipeline123'
                 backendAzureRmContainerName: 'azure'
-                backendAzureRmKey: 'dev.terraform.tfstate'
+                backendAzureRmKey: '$(parameters.todo-parameters).terraform.tfstate'
            - task: TerraformTask@5
              inputs:
                provider: 'azurerm'
                command: 'apply'
-               workingDirectory: '$(System.DefaultWorkingDirectory)/env/dev'
+               workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.todo-parameters)'
                environmentServiceNameAzureRM: 'todo-svc-test'
