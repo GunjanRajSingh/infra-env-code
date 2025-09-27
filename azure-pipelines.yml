@@ -100,6 +100,7 @@ stages:
               command: 'init'
               workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.enviroment)'
               backendServiceArm: 'todo-svc-test'
+              backendAzureRmResourceGroupName: todo-rg1
               backendAzureRmStorageAccountName: 'azurepipeline123'
               backendAzureRmContainerName: 'azure'
               backendAzureRmKey: '$(parameters.enviroment).terraform.tfstate'
@@ -113,7 +114,18 @@ stages:
           - task: TerraformTaskV4@4
             inputs:
               provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.enviroment)'
+              backendServiceArm: 'todo-svc-test'
+              backendAzureRmResourceGroupName: todo-rg1
+              backendAzureRmStorageAccountName: 'azurepipeline123'
+              backendAzureRmContainerName: 'azure'
+              backendAzureRmKey: '$(parameters.enviroment).terraform.tfstate'
+          - task: TerraformTaskV4@4
+            inputs:
+              provider: 'azurerm'
               command: 'plan'
+              backendAzureRmResourceGroupName: todo-rg1
               workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.enviroment)'
               environmentServiceNameAzureRM: 'todo-svc-test'
 
@@ -126,6 +138,17 @@ stages:
           - task: TerraformTaskV4@4
             inputs:
               provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.enviroment)'
+              backendServiceArm: 'todo-svc-test'
+              backendAzureRmResourceGroupName: todo-rg1
+              backendAzureRmStorageAccountName: 'azurepipeline123'
+              backendAzureRmContainerName: 'azure'
+              backendAzureRmKey: '$(parameters.enviroment).terraform.tfstate'
+          - task: TerraformTaskV4@4
+            inputs:
+              provider: 'azurerm'
               command: 'apply'
+              backendAzureRmResourceGroupName: todo-rg1
               workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.enviroment)'
               environmentServiceNameAzureRM: 'todo-svc-test'
