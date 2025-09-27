@@ -75,8 +75,8 @@
 #                environmentServiceNameAzureRM: 'todo-svc-test'
 
 parameters:
-  - name: todo-parameters
-    displayName: ENVIROMENT
+  - name: enviroment
+    displayName: TODO-PARAMETERS
     type: string
     default: dev
     values:
@@ -97,11 +97,11 @@ stages:
               inputs:
                 provider: 'azurerm'
                 command: 'init'
-                workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.todo-parameters)'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.enviroment)'
                 backendServiceArm: 'todo-svc-test'
                 backendAzureRmStorageAccountName: 'azurepipeline123'
                 backendAzureRmContainerName: 'azure'
-                backendAzureRmKey: $'(parameters.todo-parameters).terraform.tfstate'
+                backendAzureRmKey: '$(parameters.enviroment).terraform.tfstate'
 
     - stage: terraformplan
       displayName: TERRAFORM PLAN
@@ -112,16 +112,16 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'init'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.todo-parameters)'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.enviroment)'
               backendServiceArm: 'todo-svc-test'
               backendAzureRmStorageAccountName: 'azurepipeline123'
               backendAzureRmContainerName: 'azure'
-              backendAzureRmKey: '$(parameters.todo-parameters).terraform.tfstate'
+              backendAzureRmKey: '$(parameters.enviroment).terraform.tfstate'
           - task: TerraformTask@5
             inputs:
               provider: 'azurerm'
               command: 'plan'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.todo-parameters)'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.enviroment)'
               environmentServiceNameAzureRM: 'todo-svc-test'
 
     - stage: terraformapply
@@ -134,14 +134,14 @@ stages:
              inputs:
                 provider: 'azurerm'
                 command: 'init'
-                workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.todo-parameters)'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.enviroment)'
                 backendServiceArm: 'todo-svc-test'
                 backendAzureRmStorageAccountName: 'azurepipeline123'
                 backendAzureRmContainerName: 'azure'
-                backendAzureRmKey: '$(parameters.todo-parameters).terraform.tfstate'
+                backendAzureRmKey: '$(parameters.enviroment).terraform.tfstate'
            - task: TerraformTask@5
              inputs:
                provider: 'azurerm'
                command: 'apply'
-               workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.todo-parameters)'
+               workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(parameters.enviroment)'
                environmentServiceNameAzureRM: 'todo-svc-test'
