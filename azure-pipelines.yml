@@ -1,6 +1,6 @@
 parameters:
   - name: todo-parameters
-    displayName: PARAMETERS
+    displayName: ENVIROMENT
     type: string
     default: dev
     values:
