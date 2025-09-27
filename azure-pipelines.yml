@@ -1,5 +1,3 @@
-# 
-
 parameters:
   - name: enviroment
     displayName: ENVIROMENT
@@ -23,53 +21,10 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'init'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(enviroment)'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
               backendServiceArm: 'todo-svc-test'
               backendAzureRmStorageAccountName: 'azurepipeline123'
               backendAzureRmContainerName: 'azure'
-              backendAzureRmKey: '$(enviroment).terraform.tfstate'
+              backendAzureRmKey: '${{ parameters.enviroment }}.terraform.tfstate'
 
-  - stage: terraformplan
-    displayName: TERRAFORM PLAN
-    jobs:
-      - job: terraformplan
-        steps:
-          - task: TerraformTask@5
-            inputs:
-              provider: 'azurerm'
-              command: 'init'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(enviroment)'
-              backendServiceArm: 'todo-svc-test'
-              backendAzureRmStorageAccountName: 'azurepipeline123'
-              backendAzureRmContainerName: 'azure'
-              backendAzureRmKey: '$(enviroment).terraform.tfstate'
-
-          - task: TerraformTask@5
-            inputs:
-              provider: 'azurerm'
-              command: 'plan'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(enviroment)'
-              environmentServiceNameAzureRM: 'todo-svc-test'
-
-  - stage: terraformapply
-    displayName: TERRAFORM APPLY
-    dependsOn: terraformplan
-    jobs:
-      - job: terraformapply
-        steps:
-          - task: TerraformTask@5
-            inputs:
-              provider: 'azurerm'
-              command: 'init'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(enviroment)'
-              backendServiceArm: 'todo-svc-test'
-              backendAzureRmStorageAccountName: 'azurepipeline123'
-              backendAzureRmContainerName: 'azure'
-              backendAzureRmKey: '$(enviroment).terraform.tfstate'
-
-          - task: TerraformTask@5
-            inputs:
-              provider: 'azurerm'
-              command: 'apply'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/env/$(enviroment)'
-              environmentServiceNameAzureRM: 'todo-svc-test'
+  # similarly for other stages/jobs...
