@@ -16,9 +16,16 @@ variables:
   prod_storage_account: "azurepipeline123"
   prod_container: "azure"
 
+pool: test-pool
+trigger: none
+
 stages:
   - stage: terraform_init
     displayName: "Terraform Init"
+    variables:
+      service_connection: ${{ parameters.environment == 'dev' && variables.dev_service_connection || variables.prod_service_connection }}
+      storage_account: ${{ parameters.environment == 'dev' && variables.dev_storage_account || variables.prod_storage_account }}
+      container_name: ${{ parameters.environment == 'dev' && variables.dev_container || variables.prod_container }}
     jobs:
       - job: init
         steps:
@@ -27,25 +34,28 @@ stages:
               provider: 'azurerm'
               command: 'init'
               workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.environment }}'
-              backendServiceArm: ${{ parameters.environment == 'dev' && variables.dev_service_connection || variables.prod_service_connection }}
-              backendAzureRmStorageAccountName: ${{ parameters.environment == 'dev' && variables.dev_storage_account || variables.prod_storage_account }}
-              backendAzureRmContainerName: ${{ parameters.environment == 'dev' && variables.dev_container || variables.prod_container }}
+              backendServiceArm: $(service_connection)
+              backendAzureRmStorageAccountName: $(storage_account)
+              backendAzureRmContainerName: $(container_name)
               backendAzureRmKey: '${{ parameters.environment }}.tfstate'
 
   - stage: terraform_plan
     displayName: "Terraform Plan"
+    variables:
+      service_connection: ${{ parameters.environment == 'dev' && variables.dev_service_connection || variables.prod_service_connection }}
+      storage_account: ${{ parameters.environment == 'dev' && variables.dev_storage_account || variables.prod_storage_account }}
+      container_name: ${{ parameters.environment == 'dev' && variables.dev_container || variables.prod_container }}
     jobs:
       - job: plan
         steps:
-          
           - task: TerraformTaskV4@4
             inputs:
               provider: 'azurerm'
               command: 'init'
               workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.environment }}'
-              backendServiceArm: ${{ parameters.environment == 'dev' && variables.dev_service_connection || variables.prod_service_connection }}
-              backendAzureRmStorageAccountName: ${{ parameters.environment == 'dev' && variables.dev_storage_account || variables.prod_storage_account }}
-              backendAzureRmContainerName: ${{ parameters.environment == 'dev' && variables.dev_container || variables.prod_container }}
+              backendServiceArm: $(service_connection)
+              backendAzureRmStorageAccountName: $(storage_account)
+              backendAzureRmContainerName: $(container_name)
               backendAzureRmKey: '${{ parameters.environment }}.tfstate'
 
           - task: TerraformTaskV4@4
@@ -53,22 +63,25 @@ stages:
               provider: 'azurerm'
               command: 'plan'
               workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.environment }}'
-              environmentServiceNameAzureRM: ${{ parameters.environment == 'dev' && variables.dev_service_connection || variables.prod_service_connection }}
+              environmentServiceNameAzureRM: $(service_connection)
 
   - stage: terraform_apply
     displayName: "Terraform Apply"
+    variables:
+      service_connection: ${{ parameters.environment == 'dev' && variables.dev_service_connection || variables.prod_service_connection }}
+      storage_account: ${{ parameters.environment == 'dev' && variables.dev_storage_account || variables.prod_storage_account }}
+      container_name: ${{ parameters.environment == 'dev' && variables.dev_container || variables.prod_container }}
     jobs:
       - job: apply
         steps:
-          
           - task: TerraformTaskV4@4
             inputs:
               provider: 'azurerm'
               command: 'init'
               workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.environment }}'
-              backendServiceArm: ${{ parameters.environment == 'dev' && variables.dev_service_connection || variables.prod_service_connection }}
-              backendAzureRmStorageAccountName: ${{ parameters.environment == 'dev' && variables.dev_storage_account || variables.prod_storage_account }}
-              backendAzureRmContainerName: ${{ parameters.environment == 'dev' && variables.dev_container || variables.prod_container }}
+              backendServiceArm: $(service_connection)
+              backendAzureRmStorageAccountName: $(storage_account)
+              backendAzureRmContainerName: $(container_name)
               backendAzureRmKey: '${{ parameters.environment }}.tfstate'
 
           - task: TerraformTaskV4@4
@@ -76,4 +89,4 @@ stages:
               provider: 'azurerm'
               command: 'apply'
               workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.environment }}'
-              environmentServiceNameAzureRM: ${{ parameters.environment == 'dev' && variables.dev_service_connection || variables.prod_service_connection }}
+              environmentServiceNameAzureRM: $(service_connection)
