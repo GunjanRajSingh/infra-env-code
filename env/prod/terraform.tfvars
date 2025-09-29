@@ -7,7 +7,7 @@ rgs-pm = {
 
  stg-pm = {
     stg1 = {
-      name = "stg8983w894wiouyiprod"
+      name = "stg8983w894wiouyiprod1"
       location = "eastus"
       resource_group_name = "rg001-prod"
       account_tier = "Standard"
