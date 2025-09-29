@@ -1,6 +1,6 @@
 parameters:
-  - name: environment
-    displayName: "ENVIRONMENT"
+  - name: enviroment
+    displayName: ENVIROMENT
     type: string
     default: dev
     values:
@@ -8,14 +8,19 @@ parameters:
       - prod
 
 variables:
-  # Service Connection set based on environment
-  - name: serviceConnection
-    ${{ if eq(parameters.environment, 'prod') }}:
+  - name: dev_svc
+    value: 'dev-svc-todo'
+  - name: prod_svc
+    value: 'todo-svc-prod'
+  - name: selected_svc
+    ${{ if eq(parameters.enviroment, 'prod') }}:
       value: 'todo-svc-prod'
-    ${{ if eq(parameters.environment, 'dev') }}:
+    ${{ if ne(parameters.enviroment, 'prod') }}:
       value: 'dev-svc-todo'
 
-pool: test-pool
+pool:
+  name: test-pool
+
 trigger: none
 
 stages:
@@ -23,47 +28,58 @@ stages:
     displayName: TERRAFORM INIT
     jobs:
       - job: InitJob
+        displayName: "Init Job"
         steps:
           - task: TerraformTask@5
-            displayName: 'Terraform Init'
             inputs:
               provider: 'azurerm'
               command: 'init'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.environment }}'
-              backendServiceArm: $(serviceConnection)
-              backendAzureRmResourceGroupName: 'rg-todo'     # optional if needed
-              backendAzureRmStorageAccountName: ''
-              backendAzureRmContainerName: ''
-              backendAzureRmKey: ''
-              commandOptions: >
-                -backend-config=env/${{ parameters.environment }}/backend.tfvars
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
+              backendServiceArm: '$(selected_svc)'
+              backendAzureRmStorageAccountName: 'azurepipeline123'
+              backendAzureRmContainerName: 'azure'
+              backendAzureRmKey: '${{ parameters.enviroment }}.terraform.tfstate'
 
   - stage: terraformplan
     displayName: TERRAFORM PLAN
     jobs:
       - job: terraformplan
+        displayName: "Terraform Plan Job"
         steps:
           - task: TerraformTask@5
-            displayName: 'Terraform Plan'
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
+              backendServiceArm: '$(selected_svc)'
+              backendAzureRmStorageAccountName: 'azurepipeline123'
+              backendAzureRmContainerName: 'azure'
+              backendAzureRmKey: '${{ parameters.enviroment }}.terraform.tfstate'
+          - task: TerraformTask@5
             inputs:
               provider: 'azurerm'
               command: 'plan'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.environment }}'
-              environmentServiceNameAzureRM: $(serviceConnection)
-              commandOptions: >
-                -var-file=env/${{ parameters.environment }}/backend.tfvars
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
+              environmentServiceNameAzureRM: '$(selected_svc)'
 
   - stage: terraformapply
     displayName: TERRAFORM APPLY
     jobs:
       - job: terraformapply
+        displayName: "Terraform Apply Job"
         steps:
           - task: TerraformTask@5
-            displayName: 'Terraform Apply'
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
+              backendServiceArm: '$(selected_svc)'
+              backendAzureRmStorageAccountName: 'azurepipeline123'
+              backendAzureRmContainerName: 'azure'
+              backendAzureRmKey: '${{ parameters.enviroment }}.terraform.tfstate'
+          - task: TerraformTask@5
             inputs:
               provider: 'azurerm'
               command: 'apply'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.environment }}'
-              environmentServiceNameAzureRM: $(serviceConnection)
-              commandOptions: >
-                -var-file=env/${{ parameters.environment }}/backend.tfvars
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
+              environmentServiceNameAzureRM: '$(selected_svc)'
