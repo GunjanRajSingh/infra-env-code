@@ -9,35 +9,6 @@ parameters:
       - dev
       - prod
 
-# variables:
-#   - name: dev_svc
-#     value: 'dev-svc-todo'
-#   - name: prod_svc
-#     value: 'todo-svc-prod'
-
-#   - name: selected_svc
-#     ${{ if eq(parameters.enviroment, 'prod') }}:
-#       value: 'todo-svc-prod'
-#     ${{ if ne(parameters.enviroment, 'prod') }}:
-#       value: 'dev-svc-todo'
-
-#   - name: dev_backend
-#     value: devtodo
-#   - name: prod_backend
-#     value: azurepipeline123
-#   - name: select_backend
-#     ${{ if eq(parameters.enviroment, 'prod') }}:
-#      value: devtodo
-#     ${{ if ne(parameters.enviroment, 'prod') }}:
-#      value: azurepipeline123
-#   - name: dev_cont
-#     value: todo-dev-cont
-#   - name: prod_cont
-#     value: azure
-#   - name: select_container
-#     ${{ if eq(parameters.enviroment, 'prod') }}:
-#      value: azure
-#     ${{ if ne (parameters.enviroment, 'prod')}}:
 
 variables:
   # Service connections
@@ -95,7 +66,8 @@ stages:
               workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
               backendServiceArm: '$(selected_svc)'
               backendAzureRmStorageAccountName: '$(select_backend)'
-              backendAzureRmContainerName: '$(select_conatiner)'
+              backendAzureRmContainerName: '$(select_container)'
+              backendAzureRmKey: '${{ parameters.enviroment }}.terraform.tfstate'
 
   - stage: terraformplan
     displayName: TERRAFORM PLAN
