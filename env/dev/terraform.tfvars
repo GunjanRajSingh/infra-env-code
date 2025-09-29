@@ -7,7 +7,7 @@ rgs-pm = {
 
  stg-pm = {
     stg1 = {
-      name = "stg8983w894wiouyidev"
+      name = "stg8983w894wiouyidev1"
       location = "centralindia"
       resource_group_name = "rg001-dev"
       account_tier = "Standard"
