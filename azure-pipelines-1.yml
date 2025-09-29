@@ -21,6 +21,28 @@ variables:
     ${{ if ne(parameters.enviroment, 'prod') }}:
       value: 'dev-svc-todo'
 
+  - name: dev_backend
+    value: devtodo
+  - name: prod_backend
+    value: azurepipeline123
+  - name: select_backend
+    ${{ if eq(parameters.enviroment, 'prod') }}:
+     value: devtodo
+    ${{ if ne(parameters.enviroment, 'prod') }}:
+     value: azurepipeline123
+  - name: dev_cont
+    value: todo-dev-cont
+  - name: prod_cont
+    value: azure
+  - name: select_container
+    ${{ if eq(parameters.enviroment, 'prod') }}:
+     value: azure
+    ${{ if ne (parameters.enviroment, 'prod')}}:
+
+
+
+
+
 pool:
   name: test-pool
 
@@ -39,6 +61,8 @@ stages:
               command: 'init'
               workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
               backendServiceArm: '$(selected_svc)'
+              backendAzureRmStorageAccountName: '$(select_backend)'
+              backendAzureRmContainerName: '$(select_conatiner)'
 
   - stage: terraformplan
     displayName: TERRAFORM PLAN
