@@ -9,7 +9,38 @@ parameters:
       - dev
       - prod
 
+# variables:
+#   - name: dev_svc
+#     value: 'dev-svc-todo'
+#   - name: prod_svc
+#     value: 'todo-svc-prod'
+
+#   - name: selected_svc
+#     ${{ if eq(parameters.enviroment, 'prod') }}:
+#       value: 'todo-svc-prod'
+#     ${{ if ne(parameters.enviroment, 'prod') }}:
+#       value: 'dev-svc-todo'
+
+#   - name: dev_backend
+#     value: devtodo
+#   - name: prod_backend
+#     value: azurepipeline123
+#   - name: select_backend
+#     ${{ if eq(parameters.enviroment, 'prod') }}:
+#      value: devtodo
+#     ${{ if ne(parameters.enviroment, 'prod') }}:
+#      value: azurepipeline123
+#   - name: dev_cont
+#     value: todo-dev-cont
+#   - name: prod_cont
+#     value: azure
+#   - name: select_container
+#     ${{ if eq(parameters.enviroment, 'prod') }}:
+#      value: azure
+#     ${{ if ne (parameters.enviroment, 'prod')}}:
+
 variables:
+  # Service connections
   - name: dev_svc
     value: 'dev-svc-todo'
   - name: prod_svc
@@ -18,28 +49,30 @@ variables:
   - name: selected_svc
     ${{ if eq(parameters.enviroment, 'prod') }}:
       value: 'todo-svc-prod'
-    ${{ if ne(parameters.enviroment, 'prod') }}:
+    ${{ else }}:
       value: 'dev-svc-todo'
 
+  # Backend Storage Account
   - name: dev_backend
-    value: devtodo
+    value: 'devtodo'
   - name: prod_backend
-    value: azurepipeline123
+    value: 'azurepipeline123'
   - name: select_backend
     ${{ if eq(parameters.enviroment, 'prod') }}:
-     value: devtodo
-    ${{ if ne(parameters.enviroment, 'prod') }}:
-     value: azurepipeline123
+      value: 'azurepipeline123'
+    ${{ else }}:
+      value: 'devtodo'
+
+  # Container
   - name: dev_cont
-    value: todo-dev-cont
+    value: 'todo-dev-cont'
   - name: prod_cont
-    value: azure
+    value: 'azure'
   - name: select_container
     ${{ if eq(parameters.enviroment, 'prod') }}:
-     value: azure
-    ${{ if ne (parameters.enviroment, 'prod')}}:
-
-
+      value: 'azure'
+    ${{ else }}:
+      value: 'todo-dev-cont'
 
 
 
