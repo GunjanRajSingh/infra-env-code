@@ -91,6 +91,7 @@ stages:
               command: 'plan'
               workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
               environmentServiceNameAzureRM: '$(selected_svc)'
+              commandOptions: '-out=tfplan.binary'
           - publish: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}/tfplan.binary'
             artifact: terraformplan
 
