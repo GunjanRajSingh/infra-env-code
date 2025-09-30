@@ -91,9 +91,18 @@ stages:
               command: 'plan'
               workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
               environmentServiceNameAzureRM: '$(selected_svc)'
-              commandOptions: '-out=tfplan.json'
-          - publish: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}/tfplan.json'
+              commandOptions: '-out=tfplan.binary'
+          - publish: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}/tfplan.binary'
             artifact: terraformplan
+          - task: TerraformTask@5
+            inputs:
+              provider: 'azurerm'
+              command: 'show'
+              workingDirectory: '$(System.DefaultWorkingDirectory)${{ parameters.enviroment }}'
+              outputTo: 'file'
+              outputFormat: 'json'
+              fileName: 'tfplan'
+              environmentServiceNameAzureRM: '$(selected_svc)'
 
   - stage: terraformapply
     displayName: TERRAFORM APPLY
