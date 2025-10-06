@@ -3,8 +3,8 @@ trigger:
     include:
       - main
 
-# pool:
-#   name: Gunjan-Agent
+pool:
+  name: Gunjan-Agent
 #   demands: agent.name -eqauls agent1
 parameters:
   - name: enviroment
@@ -48,18 +48,18 @@ variables:
 
   - name: select_container
     ${{ if eq(parameters.enviroment, 'prod') }}:
-    value: 'gunjanprodcontainer'
+      value: 'gunjanprodcontainer'
     ${{ else }}:
-    value: 'gunjandevcontainer'
+      value: 'gunjandevcontainer'
 
 stages:
   - stage: Build
     jobs:
       - job: 
         displayName: Build
-        pool:
-          name: Gunjan-Agent
-          demands: agent.name -eqauls agent1
+        # pool:
+        #   name: Gunjan-Agent
+        #   demands: agent.name -eqauls agent1
         steps:
           - task: TerraformInstaller@1
             displayName: Installer
@@ -85,9 +85,9 @@ stages:
     dependsOn: Build
     jobs:
       - job: Plan
-        pool:
-          name: Gunjan-Agent
-          demands: agent.name -eqauls agent1
+        # pool:
+        #   name: Gunjan-Agent
+        #   demands: agent.name -eqauls agent1
         steps:
           - task: TerraformTask@5
             displayName: Init
@@ -111,9 +111,9 @@ stages:
     dependsOn: Plan
     jobs:
       - job: Apply
-        pool:
-          name: Gunjan-Agent
-          demands: agent.name -eqauls agent1
+        # pool:
+        #   name: Gunjan-Agent
+        #   demands: agent.name -eqauls agent1
         steps:
           - task: TerraformTask@5
             displayName: Init
