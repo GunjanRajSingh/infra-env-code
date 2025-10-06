@@ -4,7 +4,8 @@ trigger:
       - main
 
 pool:
-  name: Gunjan-Agent
+  vmImage: ubuntu-latest
+  # name: Gunjan-Agent
 #   demands: agent.name -eqauls agent1
 parameters:
   - name: enviroment
