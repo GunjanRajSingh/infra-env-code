@@ -1,0 +1,142 @@
+trigger:
+  branches:
+    include:
+      - none
+
+pool:
+  name: Gunjan-Agent
+#   demands: agent.name -eqauls agent1
+parameters:
+  - name: enviroment
+    displayName: ENVIRONMENT
+    type: string
+    default: dev
+    values:
+      - dev
+      - prod
+
+variables:
+  # Service connections
+  - name: dev_svc
+    value: 'dev-conn-svc'
+  - name: prod_svc
+    value: 'prod-conn-svc'
+
+  - name: selected_svc
+    ${{ if eq(parameters.enviroment, 'prod') }}:
+      value: 'prod-conn-svc'
+    ${{ else }}:
+      value: 'dev-conn-svc'
+
+  # Backend Storage Account
+  - name: dev_backend
+    value: 'gunjandevstg22561'
+  - name: prod_backend
+    value: 'gunjanprodstg9515'
+
+  - name: select_backend
+    ${{ if eq(parameters.enviroment, 'prod') }}:
+      value: 'gunjanprodstg9515'
+    ${{ else }}:
+      value: 'gunjandevstg22561'
+
+  # Container
+  - name: dev_cont
+    value: 'gunjandevcontainer'
+  - name: prod_cont
+    value: 'gunjanprodcontainer'
+
+  - name: select_container
+    ${{ if eq(parameters.enviroment, 'prod') }}:
+      value: 'gunjanprodcontainer'
+    ${{ else }}:
+      value: 'gunjandevcontainer'
+
+stages:
+  - stage: Build
+    jobs:
+      - job: 
+        displayName: Build
+        # pool:
+        #   name: Gunjan-Agent
+        #   demands: agent.name -eqauls agent1
+        steps:
+          - task: TerraformInstaller@1
+            displayName: Installer
+            inputs:
+              terraformVersion: latest
+          - task: TerraformTask@5
+            displayName: Init
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
+              backendServiceArm: '$(selected_svc)'
+              backendAzureRmStorageAccountName: '$(select_backend)'
+              backendAzureRmContainerName: '$(select_container)'
+              backendAzureRmKey: '${{ parameters.enviroment }}.terraform.tfstate'
+          - task: TerraformTask@5
+            displayName: Validate
+            inputs:
+              provider: azurerm
+              command: validate
+
+  - stage: Plan
+    dependsOn: Build
+    jobs:
+      - job: Plan
+        # pool:
+        #   name: Gunjan-Agent
+        #   demands: agent.name -eqauls agent1
+        steps:
+          - task: TerraformInstaller@1
+            displayName: Installer
+            inputs:
+              terraformVersion: latest
+          - task: TerraformTask@5
+            displayName: Init
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
+              backendServiceArm: '$(selected_svc)'
+              backendAzureRmStorageAccountName: '$(select_backend)'
+              backendAzureRmContainerName: '$(select_container)'
+              backendAzureRmKey: '${{ parameters.enviroment }}.terraform.tfstate'
+          - task: TerraformTask@5
+            displayName: plan
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
+              environmentServiceNameAzureRM: '$(selected_svc)'
+
+  - stage: Apply
+    dependsOn: Plan
+    jobs:
+      - job: Apply
+        # pool:
+        #   name: Gunjan-Agent
+        #   demands: agent.name -eqauls agent1
+        steps:
+          - task: TerraformInstaller@1
+            displayName: Installer
+            inputs:
+              terraformVersion: latest
+          - task: TerraformTask@5
+            displayName: Init
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
+              backendServiceArm: '$(selected_svc)'
+              backendAzureRmStorageAccountName: '$(select_backend)'
+              backendAzureRmContainerName: '$(select_container)'
+              backendAzureRmKey: '${{ parameters.enviroment }}.terraform.tfstate'
+          - task: TerraformTask@5
+            displayName: Apply
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
+              environmentServiceNameAzureRM: '$(selected_svc)'
