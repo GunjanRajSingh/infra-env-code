@@ -3,4 +3,3 @@ for_each = var.child-rg-mv
 name = each.value.name
 location = each.value.location
 }
-
