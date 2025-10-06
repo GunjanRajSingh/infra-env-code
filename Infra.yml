@@ -62,9 +62,9 @@ stages:
         #   demands: agent.name -eqauls agent1
         steps:
           - task: TerraformInstaller@1
-            displayName: Installer
+            displayName: Install
             inputs:
-              terraformVersion: latest
+              terraformVersion: 'latest'
           - task: TerraformTask@5
             displayName: Init
             inputs:
