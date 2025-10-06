@@ -3,9 +3,9 @@ trigger:
     include:
       - main
 
-pool:
-  vmImage: ubuntu-latest
-
+# pool:
+#   name: Gunjan-Agent
+#   demands: agent.name -eqauls agent1
 parameters:
   - name: enviroment
     displayName: ENVIRONMENT
@@ -48,22 +48,25 @@ variables:
 
   - name: select_container
     ${{ if eq(parameters.enviroment, 'prod') }}:
-      value: 'gunjanprodcontainer'
+    value: 'gunjanprodcontainer'
     ${{ else }}:
-      value: 'gunjandevcontainer'
-
-
-
-
+    value: 'gunjandevcontainer'
 
 stages:
-  - stage: terraforminit
-    displayName: TERRAFORM INIT
+  - stage: Build
     jobs:
-      - job: InitJob
-        displayName: "Init Job"
+      - job: 
+        displayName: Build
+        pool:
+          name: Gunjan-Agent
+          demands: agent.name -eqauls agent1
         steps:
+          - task: TerraformInstaller@1
+            displayName: Installer
+            inputs:
+              terraformVersion: latest
           - task: TerraformTask@5
+            displayName: Init
             inputs:
               provider: 'azurerm'
               command: 'init'
@@ -72,15 +75,22 @@ stages:
               backendAzureRmStorageAccountName: '$(select_backend)'
               backendAzureRmContainerName: '$(select_container)'
               backendAzureRmKey: '${{ parameters.enviroment }}.terraform.tfstate'
+          - task: TerraformTask@5
+            displayName: Validate
+            inputs:
+              provider: azurerm
+              command: validate
 
-  - stage: terraformplan
-    displayName: TERRAFORM PLAN
-    dependsOn: terraforminit
+  - stage: Plan
+    dependsOn: Build
     jobs:
-      - job: TerraformPlan
-        displayName: "Terraform Plan Job"
+      - job: Plan
+        pool:
+          name: Gunjan-Agent
+          demands: agent.name -eqauls agent1
         steps:
           - task: TerraformTask@5
+            displayName: Init
             inputs:
               provider: 'azurerm'
               command: 'init'
@@ -90,20 +100,23 @@ stages:
               backendAzureRmContainerName: '$(select_container)'
               backendAzureRmKey: '${{ parameters.enviroment }}.terraform.tfstate'
           - task: TerraformTask@5
+            displayName: plan
             inputs:
               provider: 'azurerm'
               command: 'plan'
               workingDirectory: '$(System.DefaultWorkingDirectory)/env/${{ parameters.enviroment }}'
               environmentServiceNameAzureRM: '$(selected_svc)'
 
-  - stage: terraformapply
-    displayName: TERRAFORM APPLY
-    dependsOn: terraformplan
+  - stage: Apply
+    dependsOn: Plan
     jobs:
-      - job: TerraformApply
-        displayName: "Terraform Apply Job"
+      - job: Apply
+        pool:
+          name: Gunjan-Agent
+          demands: agent.name -eqauls agent1
         steps:
           - task: TerraformTask@5
+            displayName: Init
             inputs:
               provider: 'azurerm'
               command: 'init'
@@ -113,6 +126,7 @@ stages:
               backendAzureRmContainerName: '$(select_container)'
               backendAzureRmKey: '${{ parameters.enviroment }}.terraform.tfstate'
           - task: TerraformTask@5
+            displayName: Apply
             inputs:
               provider: 'azurerm'
               command: 'apply'
