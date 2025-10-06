@@ -1,4 +1,10 @@
-# 
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
 
 parameters:
   - name: enviroment
@@ -9,48 +15,46 @@ parameters:
       - dev
       - prod
 
-
 variables:
   # Service connections
   - name: dev_svc
-    value: 'dev-svc-todo'
+    value: 'dev-conn-svc'
   - name: prod_svc
-    value: 'todo-svc-prod'
+    value: 'prod-conn-svc'
 
   - name: selected_svc
     ${{ if eq(parameters.enviroment, 'prod') }}:
-      value: 'todo-svc-prod'
+      value: 'prod-conn-svc'
     ${{ else }}:
-      value: 'dev-svc-todo'
+      value: 'dev-conn-svc'
 
   # Backend Storage Account
   - name: dev_backend
-    value: 'devtodo'
+    value: 'gunjandevstg22561'
   - name: prod_backend
-    value: 'azurepipeline123'
+    value: 'gunjanprodstg9515'
+
   - name: select_backend
     ${{ if eq(parameters.enviroment, 'prod') }}:
-      value: 'azurepipeline123'
+      value: 'gunjanprodstg9515'
     ${{ else }}:
-      value: 'devtodo'
+      value: 'gunjandevstg22561'
 
   # Container
   - name: dev_cont
-    value: 'todo-dev-cont'
+    value: 'gunjandevcontainer'
   - name: prod_cont
-    value: 'azure'
+    value: 'gunjanprodcontainer'
+
   - name: select_container
     ${{ if eq(parameters.enviroment, 'prod') }}:
-      value: 'azure'
+      value: 'gunjanprodcontainer'
     ${{ else }}:
-      value: 'todo-dev-cont'
+      value: 'gunjandevcontainer'
 
 
 
-pool:
-  name: test-pool
 
-trigger: none
 
 stages:
   - stage: terraforminit
